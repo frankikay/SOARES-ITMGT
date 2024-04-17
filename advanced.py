@@ -48,7 +48,20 @@ def relationship_status(from_member, to_member, social_graph):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    pass
+
+    x = social_graph[from_member]["following"]
+    y = social_graph[to_member]["following"]
+
+    if from_member in y:
+        if to_member in x:
+            return "friends"
+        else:
+            return "followed by"
+    
+    elif to_member in x:
+        return "follower"
+    else:
+        return "no relationship"
 
 
 def tic_tac_toe(board):
@@ -77,7 +90,62 @@ def tic_tac_toe(board):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    pass
+
+    board_length = len(board)
+    winner = None
+
+    for i in range(board_length):
+        row_symbol = board[i][0]
+        all_same_in_row = True
+        
+        for j in range(1, board_length):
+            if board[i][j] != row_symbol:
+                all_same_in_row = False
+                break
+            
+        if all_same_in_row and row_symbol != "":
+            winner = row_symbol
+            break
+
+    if not winner:
+        for i in range(board_length):
+            col_symbol = board[0][i]
+            all_same_in_col = True
+            
+            for j in range(1, board_length):
+                if board[j][i] != col_symbol:
+                    all_same_in_col = False
+                    break
+                
+            if all_same_in_col and col_symbol != "":
+                winner = col_symbol
+                break
+
+    if not winner:
+        diag_symbol = board[0][0]
+        all_same_in_diag = True
+        
+        for i in range(1, board_length):
+            if board[i][i] != diag_symbol:
+                all_same_in_diag = False
+                break
+            
+        if all_same_in_diag and diag_symbol != "":
+            winner = diag_symbol
+
+    if not winner:
+        diag_symbol = board[0][board_length - 1]
+        all_same_in_diag = True
+        
+        for i in range(1, board_length):
+            if board[i][board_length - 1 - i] != diag_symbol:
+                all_same_in_diag = False
+                break
+            
+        if all_same_in_diag and diag_symbol != "":
+            winner = diag_symbol
+
+    return winner if winner else "NO WINNER"
 
 def eta(first_stop, second_stop, route_map):
     '''ETA.
@@ -110,4 +178,23 @@ def eta(first_stop, second_stop, route_map):
     '''
     # Replace `pass` with your code.
     # Stay within the function. Only use the parameters as input. The function should return your answer.
-    pass
+
+    if first_stop == second_stop:
+        return 0
+
+    current_stop = first_stop
+    time_elapsed = 0 
+    
+    while current_stop != second_stop:
+        next_leg = None
+        for leg, info in route_map.items():
+            if leg[0] == current_stop:
+                next_leg = leg
+                break
+        if next_leg is None:
+            return None
+        
+        time_elapsed += info["travel_time_mins"]
+        current_stop = next_leg[1]
+    
+    return time_elapsed
