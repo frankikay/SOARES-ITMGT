@@ -1,0 +1,15 @@
+{% include "header.html" %}
+
+<body>
+    <h1>Branches</h1>
+    <ul>
+        {% for branch in branches %}
+            <li><a href="/branchdetails/{{ branch.code }}">{{ branch.name }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+
+{% include "footer.html" %}
+
+
+

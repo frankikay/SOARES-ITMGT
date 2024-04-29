@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1>Past Orders</h1>
+
+{% if past_orders %}
+    <ul>
+        {% for order in past_orders %}
+            <li>Order Date: {{ order.orderdate }}</li>
+            <ul>
+                {% for detail in order.details %}
+                    <li>{{ detail.name }} (Qty: {{ detail.qty }})</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No orders have been made yet.</p>
+{% endif %}
+
+{% endblock %}
