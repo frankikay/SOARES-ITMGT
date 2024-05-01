@@ -15,7 +15,6 @@ ca = certifi.where()
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
-# MongoDB connection
 uri = "mongodb+srv://nicholasong:password1234@cluster0.3dsnomm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 client = MongoClient(uri, tlsCAFile=ca)
 db = client.GiftGenie
@@ -27,13 +26,9 @@ cart_collection = db.carts
 grid_fs = gridfs.GridFS(db)
 
 
-# Common list of colors for item specifications
 COMMON_COLORS = ['Red', 'Green', 'Blue', 'Yellow', 'Black', 'White', 'Orange']
 
-# Allowed categories for items
 ALLOWED_CATEGORIES = ['Technology', 'Accessories', 'Fragrance', 'Lifestyle', 'Beauty']
-
-
 
 @app.route('/')
 def index():
@@ -50,7 +45,7 @@ def login():
         password = request.form['password']
         user = users_collection.find_one({'email': email})
         if user and check_password_hash(user['password'], password):
-            # Log in successful
+            
             session['user_id'] = str(user['_id'])
             return redirect(url_for('index'))
         else:
@@ -132,28 +127,21 @@ def discover():
             recipient_category = recipient['category']
             recipient_budget = recipient['budget']
 
-            # pipeline = [{ "$match": {"price": { "$lte": recipient_budget }, "category": recipient_category, } },{ "$sort": { "price": 1, "category": 1, "color": 1 } }]
-            
-
-            # pipeline = [        { "$addFields": {            "priority": {                 "$cond": {                     "if": { "$in": ["$color", recipient_likes] },                     "then": 1,                     "else": 2                 }             }        }},        { "$match": { "price": { "$lte": recipient_budget }, "category": recipient_category }},        { "$sort": {             "priority": 1,             "price": 1,             "category": 1,             "color": 1             }         },        { "$project": { "priority": 0 }}    ]
 
             pipeline = [{ "$addFields": {"priority": {"$cond": {"if": { "$in": ["$color", recipient_likes] },"then": 1,"else": 2}},"budget": recipient_budget,"category": recipient_category}},{ "$sort": {"priority": 1,"price": 1,  "category": 1,"color": 1}},{ "$project": { "priority": 0 }}  ]
             
             
             items = items_collection.aggregate(pipeline)
-            # items = items_collection.find()
 
             new_items = []
 
-            # Fetch images from GridFS for each item
+        
             for item in items:
                 print('ayo!\n\n\n', item, file=sys.stderr)
                 image_id = item['image_id']
                 image_data = grid_fs.get(image_id).read()
-                # Encode image data to base64 for HTML display
                 item['image_data'] = base64.b64encode(image_data).decode('utf-8')
                 new_items.append(item)
-            # s_items = dumps(items)
             return render_template('discover.html', recipients=user_recipients, items=new_items)
         
         return render_template('discover.html', recipients=user_recipients)
@@ -164,7 +152,6 @@ def cart():
     if 'user_id' in session:
         user_id = session['user_id']
         
-        # Fetch cart items for the user from the database
         cart_data = cart_collection.find_one({'user_id': user_id})
         if cart_data:
             cart_items = []
@@ -177,7 +164,7 @@ def cart():
         else:
             return render_template('cart.html', cart_items=[])
     else:
-        # Redirect the user to the login page if they are not logged in
+        
         return redirect(url_for('login'))
 
 
@@ -187,16 +174,13 @@ def add_to_cart():
         user_id = session['user_id']
         item_id = request.form['item_id']
         
-        # Check if the item is already in the user's cart
         existing_cart = cart_collection.find_one({'user_id': user_id})
         if existing_cart:
-            # Update existing cart
             cart_items = existing_cart.get('items', [])
             if item_id not in cart_items:
                 cart_items.append(item_id)
             cart_collection.update_one({'_id': existing_cart['_id']}, {'$set': {'items': cart_items}})
         else:
-            # Create new cart
             cart_collection.insert_one({'user_id': user_id, 'items': [item_id]})
         
         return jsonify({'success': True})
@@ -208,17 +192,14 @@ def remove_item():
         user_id = session['user_id']
         item_id = request.form['item_id']
         
-        # Find the user's cart in the database
         user_cart = cart_collection.find_one({'user_id': user_id})
         
         if user_cart:
             cart_items = user_cart.get('items', [])
             
-            # Remove the item ID from the cart items list
             if item_id in cart_items:
                 cart_items.remove(item_id)
                 
-                # Update the cart in the database
                 cart_collection.update_one({'_id': user_cart['_id']}, {'$set': {'items': cart_items}})
                 return jsonify({'success': True})
         
@@ -229,24 +210,22 @@ def checkout():
     if 'user_id' in session:
         user_id = session['user_id']
         
-        # Fetch cart items for the user from the database
         user_cart = cart_collection.find_one({'user_id': user_id})
         if user_cart:
             cart_items = []
-            total_price = 0  # Variable to calculate total price
+            total_price = 0  
             for item_id in user_cart.get('items', []):
                 item = items_collection.find_one({'_id': ObjectId(item_id)})
                 if item:
                     cart_items.append(item)
-                    total_price += item['price']  # Add item price to total
+                    total_price += item['price']  
                     
             if request.method == 'POST':
-                # Process checkout form data
                 full_name = request.form['full_name']
                 recipient_address = request.form['recipient_address']
                 contact_number = request.form['contact_number']
                 
-                # Create order document with checkout information
+ 
                 order = {
                     'user_id': user_id,
                     'items': user_cart['items'],
@@ -256,30 +235,24 @@ def checkout():
                     'contact_number': contact_number
                 }
                 
-                # Save order to orders collection
                 orders_collection.insert_one(order)
                 
-                # Clear the user's cart after successful checkout
                 cart_collection.update_one({'_id': user_cart['_id']}, {'$set': {'items': []}})
                 
                 return "Order confirmed!"
             new_items = []
 
-            # Fetch images from GridFS for each item
             for item in cart_items:
                 print('ayo!\n\n\n', item, file=sys.stderr)
                 image_id = item['image_id']
                 image_data = grid_fs.get(image_id).read()
-                # Encode image data to base64 for HTML display
                 item['image_data'] = base64.b64encode(image_data).decode('utf-8')
                 new_items.append(item)
             
             return render_template('checkout.html', cart_items=new_items, total_price=total_price)
         
-        # If the user's cart is empty, redirect to the cart page
         return redirect(url_for('cart'))
     
-    # Redirect the user to the login page if they are not logged in
     return redirect(url_for('login'))
 
 from bson.objectid import ObjectId
@@ -289,13 +262,10 @@ def profile():
     if 'user_id' in session:
         user_id = session['user_id']
         
-        # Fetch user details from the database
         user = users_collection.find_one({'_id': ObjectId(user_id)})
         
-        # Fetch order history for the user from the database
         user_orders = orders_collection.find({'user_id': user_id})
-        
-        # Fetch item details for each order
+
         orders_with_items = []
         for order in user_orders:
             items_ordered = []
@@ -308,7 +278,6 @@ def profile():
         
         return render_template('profile.html', user=user, orders=orders_with_items)
     
-    # Redirect the user to the login page if they are not logged in
     return redirect(url_for('login'))
 
 
@@ -330,7 +299,7 @@ def add_item():
             return "No selected image. Please choose an image."
         
         if image:
-            # Save the image to MongoDB using GridFS
+       
             image_id = grid_fs.put(image)
         else:
             return "Invalid image format. Please upload a valid image."
@@ -357,10 +326,8 @@ def about():
 
 @app.route('/logout')
 def logout():
-    # Clear the session and redirect to login page
     session.clear()
     return redirect(url_for('login'))
-
 
 if __name__ == '__main__':
     app.run(debug=True)
