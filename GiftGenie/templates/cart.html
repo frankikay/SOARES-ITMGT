@@ -1,0 +1,45 @@
+{% include 'navbar.html' %}
+
+<!-- Add padding to the body to avoid overlapping with the fixed navbar -->
+<div style="padding-top: 40px;">
+    <h1>Cart</h1>
+    <ul>
+        {% for item in cart_items %}
+            <li>{{ item.name }} - {{ item.price }} <button onclick="removeItem('{{ item._id }}')">Remove</button></li>
+        {% endfor %}
+    </ul>
+    <button onclick="checkout()">Checkout</button>
+    
+    <script>
+        function removeItem(itemId) {
+            // Send AJAX request to remove item
+            fetch('/remove_item', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token if using Flask-WTF
+                },
+                body: new URLSearchParams({
+                    'item_id': itemId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Reload the page or update the cart display
+                    location.reload();
+                } else {
+                    console.error('Failed to remove item from cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error removing item from cart:', error);
+            });
+        }
+
+        function checkout() {
+            // Redirect to checkout page
+            window.location.href = "/checkout";
+        }
+    </script>
+</div>

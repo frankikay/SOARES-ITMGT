@@ -1,0 +1,56 @@
+{% include 'navbar.html' %}
+
+<!-- Add padding to the body to avoid overlapping with the fixed navbar -->
+<div style="padding-top: 40px;">
+    <h1>Discover</h1>
+    <h2>Select Recipient</h2>
+    <form action="/discover" method="POST">
+        <select name="recipient_id">
+            {% for recipient in recipients %}
+                <option value="{{ recipient._id }}">{{ recipient.name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">Select</button>
+    </form>
+
+    {% if items %}
+    <h2>Items for Selected Recipient</h2>
+    <ul>
+        {% for item in items %}
+            <img src="data:image/jpeg;base64,{{ item.image_data }}" alt="{{ item.name }}" style="width: 100px; height: auto;">
+            <li><p>{{ item.name }} - ₱{{ item.price }}</p> 
+                <p>{{ item.specification }} - {{ item.category }}</p> 
+                <button onclick="addToCart('{{ item._id }}')">Add to Cart</button>
+            </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+
+    <script>
+        function addToCart(itemId) {
+            // Send AJAX request to add item to cart
+            fetch('/add_to_cart', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    // 'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token if using Flask-WTF
+                },
+                body: new URLSearchParams({
+                    'item_id': itemId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Item added to cart!');
+                } else {
+                    alert('Failed to add item to cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error adding item to cart:', error);
+                alert('Failed to add item to cart');
+            });
+        }
+    </script>
+</div>

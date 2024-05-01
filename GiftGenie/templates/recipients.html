@@ -1,0 +1,42 @@
+{% include 'navbar.html' %}
+
+<!-- Add padding to the body to avoid overlapping with the fixed navbar -->
+<div style="padding-top: 40px;">
+    <h1>Recipients</h1>
+    <ul>
+        {% for recipient in recipients %}
+            <li>
+                <p><strong>{{ recipient.name }}</strong> - {{ recipient.birthday }} - {{ recipient.gender }}</p>
+                <p>{{ recipient.category }} - P{{ recipient.budget }}</p>
+                <p>{{ recipient.likes }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+    <h2>Create Recipient</h2>
+    <form action="/create_recipient" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br>
+        <label for="birthday">Birthday:</label>
+        <input type="date" id="birthday" name="birthday" required><br>
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender" required>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+        </select><br>
+        <label for="likes">Likes:</label><br>
+        {% for color in colors %}
+            <input type="checkbox" id="{{ color }}" name="likes" value="{{ color }}">
+            <label for="{{ color }}">{{ color }}</label><br>
+        {% endfor %}
+        <label for="category">Category:</label>
+        <select id="category" name="category" required>
+            {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+            {% endfor %}
+        </select><br>
+        <label for="budget">Maximum Budget (Pesos):</label>
+        <input type="number" id="budget" name="budget" min="0" step="0.01" required><br>
+        <button type="submit">Create Recipient</button>
+    </form>
+</div>

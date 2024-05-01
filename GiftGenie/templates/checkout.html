@@ -1,0 +1,24 @@
+{% include 'navbar.html' %}
+
+<!-- Add padding to the body to avoid overlapping with the fixed navbar -->
+<div style="padding-top: 40px;">
+    <h1>Checkout</h1>
+    <h2>Cart Items</h2>
+    <ul>
+        {% for item in cart_items %}
+        <img src="data:image/jpeg;base64,{{ item.image_data }}" alt="{{ item.name }}" style="width: 100px; height: auto;">
+            <li>{{ item.name }} - {{ item.price }}</li>
+        {% endfor %}
+    </ul>
+    <p>Total Price: P{{ total_price }}</p>
+    <form action="/checkout" method="POST">
+        <label for="full_name">Full Name:</label>
+        <input type="text" id="full_name" name="full_name" required><br>
+        <label for="recipient_address">Recipient Address:</label>
+        <input type="text" id="recipient_address" name="recipient_address" required><br>
+        <label for="contact_number">Contact Number:</label>
+        <input type="tel" id="contact_number" name="contact_number" required><br>
+        <input type="hidden" name="recipient_id" value="{{ recipient_id }}">
+        <button type="submit">Confirm Order</button>
+    </form>
+</div>

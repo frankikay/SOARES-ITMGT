@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Gift Genie</title>
+    <style>
+        /* Style for fixed navbar */
+        .navbar {
+            overflow: hidden;
+            background-color: #aa71ca; /* Updated primary color */
+            position: fixed;
+            top: 0;
+            width: 100%;
+        }
+        
+        .navbar a {
+            float: left;
+            display: block;
+            color: #f2f2f2;
+            text-align: center;
+            padding: 14px 16px;
+            text-decoration: none;
+        }
+        
+        .navbar a:hover {
+            background-color: #ddd;
+            color: black;
+        }
+        
+        /* Add a gray right border to all navbar links except the last one (logout button) */
+        .navbar a:not(:last-child) {
+            border-right: 1px solid #bbb;
+        }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <a href="/discover">Discover</a>
+    <a href="/recipients">Recipients</a>
+    <a href="/about">About Us</a>
+    <a href="/profile">My Profile</a>
+    <a href="/cart">Cart</a>
+    <a href="/logout">Logout</a>
+    <a href="/item">Add item</a>
+</div>
+
+</body>
+</html>
