@@ -1,6 +1,5 @@
 {% include 'navbar.html' %}
 
-<!-- Add padding to the body to avoid overlapping with the fixed navbar -->
 <div style="padding-top: 40px;">
     <h1>Discover</h1>
     <h2>Select Recipient</h2>
@@ -28,12 +27,11 @@
 
     <script>
         function addToCart(itemId) {
-            // Send AJAX request to add item to cart
+         
             fetch('/add_to_cart', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                    // 'X-CSRFToken': '{{ csrf_token }}'  // Include CSRF token if using Flask-WTF
                 },
                 body: new URLSearchParams({
                     'item_id': itemId
